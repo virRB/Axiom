@@ -26,37 +26,16 @@ winget install -e --id ElementLabs.LMStudio ^
     --accept-package-agreements ^
     --accept-source-agreements
 
-set "LMS_PATH_1=%USERPROFILE%\.lmstudio\bin\lms.exe"
-set "LMS_PATH_2=%USERPROFILE%\.cache\lm-studio\bin\lms.exe"
-
-set "LMS_EXE="
-if exist "%LMS_PATH_1%" set "LMS_EXE=%LMS_PATH_1%"
-if not defined LMS_EXE if exist "%LMS_PATH_2%" set "LMS_EXE=%LMS_PATH_2%"
-
-if not defined LMS_EXE (
-    echo ERROR: Could not find the LM Studio CLI.
-    goto :fail
-)
-
-for %%A in ("%LMS_EXE%") do set "LMS_DIR=%%~dpA"
-if "%LMS_DIR:~-1%"=="\" set "LMS_DIR=%LMS_DIR:~0,-1%"
-
-echo Found LM Studio CLI: "%LMS_EXE%"
-
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "$dir = $env:LMS_DIR; " ^
-    "$p = [Environment]::GetEnvironmentVariable('Path', 'User'); " ^
-    "$entries = @($p -split ';' | Where-Object { $_ }); " ^
-    "if (-not ($entries | Where-Object { $_.TrimEnd('\') -ieq $dir.TrimEnd('\') })) { " ^
-    "  [Environment]::SetEnvironmentVariable('Path', (($entries + $dir) -join ';'), 'User'); " ^
-    "  Write-Host 'Added LM Studio CLI to user PATH.' " ^
-    "} else { Write-Host 'LM Studio CLI is already in user PATH.' }"
-
-if errorlevel 1 (
-    echo ERROR: Could not update PATH.
-    goto :fail
-)
-
+echo.
+echo [ACTION REQUIRED] Initialize LM Studio
+echo.
+echo 1. Open LM Studio from the Start Menu or Desktop.
+echo 2. Complete the initial setup and press Continue.
+echo (If it prompts you to download a model you can press 'skip for now')
+echo 3. Wait for LM Studio to finish initializing.
+echo 4. Return here.
+echo.
+pause
 
 echo.
 echo [3/5] Installing Axiom from PyPI...
