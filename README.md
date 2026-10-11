@@ -267,7 +267,7 @@ These instructions guide the model; they are not a guarantee that it will always
 
 This field appears at the root of the example definition, outside `behaviour`.
 
-It lists the `exists-file` skill. The exact effect of this field depends on how Axiom's runtime interprets it, so consult the implementation before relying on it as a security boundary. Do not assume that listing a skill here makes its code safe to execute.
+It lists the `exists-file` skill. This lists skills that can run without axiom asking for user permission before using the tool.
 
 ### How Do Python Skills Work?
 
