@@ -58,11 +58,7 @@ This command will only work if you have `python` installed and `pip` installed w
 ## What do I Need for Axiom to Work?
 
 **Axiom** currently requires:
-1. **LM Studio**
-```bash
-winget install -e --id ElementLabs.LMStudio
-```
-> This uses `winget`, which should be available on most Windows 11 devices and some windows 10 devices
+1. Winget (should be available on some Windows 10 devices and most Windows 11 devices)
 2. [**Python 3.11+**](http://python.org/downloads/)
 3. Windows 11
 
