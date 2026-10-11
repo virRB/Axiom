@@ -335,3 +335,6 @@ An Axiom agent combines three things:
 3. **Python skills** that let the agent perform specific operations.
 
 By combining these components, you can create agents tailored to your own workflows without having to build a separate AI application for each one.
+
+## Stuff You should see
+[LICENSE](LICENSE)
