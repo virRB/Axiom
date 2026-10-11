@@ -22,30 +22,26 @@ if errorlevel 1 goto :fail
 
 echo.
 echo [2/5] Installing dependencies...
-winget install -e --id ElementLabs.LMStudio --accept-package-agreements --accept-source-agreements
-if errorlevel 1 (
-    echo ERROR: Could not install LM Studio
-    goto :fail
-)
+winget install -e --id ElementLabs.LMStudio ^
+    --accept-package-agreements ^
+    --accept-source-agreements
 
-for /f "delims=" %%A in ('py -c "import shutil; print(shutil.which('lms') or '')"') do set "LMS_PATH=%%A"
+set "LMS_PATH_1=%USERPROFILE%\.lmstudio\bin\lms.exe"
+set "LMS_PATH_2=%USERPROFILE%\.cache\lm-studio\bin\lms.exe"
 
-if not defined LMS_PATH (
-    if exist "%USERPROFILE%\.lmstudio\bin\lms.exe" (
-        set "LMS_PATH=%USERPROFILE%\.lmstudio\bin\lms.exe"
-    )
-)
+set "LMS_EXE="
+if exist "%LMS_PATH_1%" set "LMS_EXE=%LMS_PATH_1%"
+if not defined LMS_EXE if exist "%LMS_PATH_2%" set "LMS_EXE=%LMS_PATH_2%"
 
-if not defined LMS_PATH (
+if not defined LMS_EXE (
     echo ERROR: Could not find the LM Studio CLI.
-    echo Check the LM Studio installation and try again.
     goto :fail
 )
 
-for %%A in ("%LMS_PATH%") do set "LMS_DIR=%%~dpA"
+for %%A in ("%LMS_EXE%") do set "LMS_DIR=%%~dpA"
 if "%LMS_DIR:~-1%"=="\" set "LMS_DIR=%LMS_DIR:~0,-1%"
 
-echo LM Studio found at "%LMS_PATH%"
+echo Found LM Studio CLI: "%LMS_EXE%"
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
     "$dir = $env:LMS_DIR; " ^
@@ -53,14 +49,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
     "$entries = @($p -split ';' | Where-Object { $_ }); " ^
     "if (-not ($entries | Where-Object { $_.TrimEnd('\') -ieq $dir.TrimEnd('\') })) { " ^
     "  [Environment]::SetEnvironmentVariable('Path', (($entries + $dir) -join ';'), 'User'); " ^
-    "  Write-Host 'Added LM Studio to user PATH.' " ^
-    "} else { Write-Host 'LM Studio is already in user PATH.' }"
+    "  Write-Host 'Added LM Studio CLI to user PATH.' " ^
+    "} else { Write-Host 'LM Studio CLI is already in user PATH.' }"
 
 if errorlevel 1 (
-    echo ERROR: Could not update PATH
+    echo ERROR: Could not update PATH.
     goto :fail
 )
-
 
 
 echo.
