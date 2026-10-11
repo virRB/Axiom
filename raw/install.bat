@@ -16,12 +16,55 @@ if errorlevel 1 (
     goto :fail
 )
 
-echo [1/4] Checking Python...
+echo [1/5] Checking Python...
 py -c "import sys; print('Python:', sys.version.split()[0])"
 if errorlevel 1 goto :fail
 
 echo.
-echo [2/4] Installing Axiom from PyPI...
+echo [2/5] Installing dependencies...
+winget install -e --id ElementLabs.LMStudio --accept-package-agreements --accept-source-agreements
+if errorlevel 1 (
+    echo ERROR: Could not install LM Studio
+    goto :fail
+)
+
+for /f "delims=" %%A in ('py -c "import shutil; print(shutil.which('lms') or '')"') do set "LMS_PATH=%%A"
+
+if not defined LMS_PATH (
+    if exist "%USERPROFILE%\.lmstudio\bin\lms.exe" (
+        set "LMS_PATH=%USERPROFILE%\.lmstudio\bin\lms.exe"
+    )
+)
+
+if not defined LMS_PATH (
+    echo ERROR: Could not find the LM Studio CLI.
+    echo Check the LM Studio installation and try again.
+    goto :fail
+)
+
+for %%A in ("%LMS_PATH%") do set "LMS_DIR=%%~dpA"
+if "%LMS_DIR:~-1%"=="\" set "LMS_DIR=%LMS_DIR:~0,-1%"
+
+echo LM Studio found at "%LMS_PATH%"
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+    "$dir = $env:LMS_DIR; " ^
+    "$p = [Environment]::GetEnvironmentVariable('Path', 'User'); " ^
+    "$entries = @($p -split ';' | Where-Object { $_ }); " ^
+    "if (-not ($entries | Where-Object { $_.TrimEnd('\') -ieq $dir.TrimEnd('\') })) { " ^
+    "  [Environment]::SetEnvironmentVariable('Path', (($entries + $dir) -join ';'), 'User'); " ^
+    "  Write-Host 'Added LM Studio to user PATH.' " ^
+    "} else { Write-Host 'LM Studio is already in user PATH.' }"
+
+if errorlevel 1 (
+    echo ERROR: Could not update PATH
+    goto :fail
+)
+
+
+
+echo.
+echo [3/5] Installing Axiom from PyPI...
 py -m pip install --upgrade axiom-by-vir
 if errorlevel 1 (
     echo ERROR: Axiom installation failed.
@@ -29,7 +72,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [3/4] Locating the Axiom launcher...
+echo [4/5] Locating the Axiom launcher...
 for /f "delims=" %%P in ('py -c "import sys; print(sys.prefix)"') do set "PY_PREFIX=%%P"
 set "SCRIPTS=%PY_PREFIX%\Scripts"
 set "AXIOM_EXE=%SCRIPTS%\axiom.exe"
@@ -44,7 +87,7 @@ if not exist "%AXIOM_EXE%" (
 echo Found: "%AXIOM_EXE%"
 
 echo.
-echo [4/4] Adding Scripts directory to your user PATH...
+echo [5/5] Adding Scripts directory to your user PATH...
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
  "$scripts = $env:SCRIPTS; $current = [Environment]::GetEnvironmentVariable('Path', 'User');" ^
  "if ([string]::IsNullOrWhiteSpace($current)) { $current = '' };" ^
