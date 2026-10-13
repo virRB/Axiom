@@ -29,7 +29,8 @@ prompt = input(">>>> ")
 response = subprocess.run(
     ["axiom", "--ask", model, prompt],
     text=True,
-    capture_output=True
+    capture_output=True,
+    encoding="utf-8"
 ).stdout
 response = json.loads(response)
 try:
