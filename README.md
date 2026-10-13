@@ -53,6 +53,15 @@ axiom --help
 ```bash
 ./install
 ```
+4. If that fails, then you may be in command prompt and not PowerShell. Try running:
+```bash
+powershell
+```
+and then run:
+```bash
+./install
+```
+again.
 
 This command will only work if you have `python` installed and `pip` installed with it, and if the device it is being run on is Windows 11
 
