@@ -22,6 +22,10 @@ TYPES = {
     "<bool>": {"type": "boolean"},
     "<struct>": {"type": "object"}
 }
+"""
+The JSON typing schema to convery <type> into
+OpenAI compatible JSON
+"""
 
 def load_model(name: str) -> dict:
     """
