@@ -33,10 +33,7 @@ response = subprocess.run(
     encoding="utf-8"
 ).stdout
 response = json.loads(response)
-try:
-    print(f"AI: {response['content']}") # The Response
-except KeyError:
-    print(f"{response['status']}: {response['reason']}") # If the response failed
+print(f"AI: {response['content']}")
 ```
 
 ### What Other Commands are there?
