@@ -55,6 +55,10 @@ axiom --help
 ```bash
 powershell
 ```
+Then; optionally, to make the process look cleaner:
+```
+cls
+```
 and then run:
 ```bash
 ./install
