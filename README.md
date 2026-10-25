@@ -21,19 +21,27 @@ axiom --ask <model-name> <prompt>
 ```
 ***Example Usage in Code***
 ```python
-import subprocess, json
-
-model = "ExampleAgent"
-prompt = input(">>>> ")
-
-response = subprocess.run(
-    ["axiom", "--ask", model, prompt],
+import subprocess # To interact with the Axiom CLI to call `--ask`
+import json # To read the JSON stdout provided by `--ask`
+model = "ExampleAgent" # A created and saved/compiled Axiom model
+while True:
+    prompt = input(">>> ")
+    response_raw = subprocess.run([
+        "axiom",
+        "--ask",
+        model,
+        prompt
+    ],
     text=True,
     capture_output=True,
-    encoding="utf-8"
-).stdout
-response = json.loads(response)
-print(f"AI: {response['content']}")
+    check=True).stdout # Get the response from Axiom (blocking)
+    response_json = json.loads(response) # Turn the stdout into machine readable data
+    if response_json["status"] == "complete":
+        print(f"AI: {response_json['content']}") # If the model succeeded
+    elif response_json["status"] == "failed":
+        print(f"Failed! {response['content']}") # If the model failed
+    else:
+        print("Invalid content found...") # If something went wrong
 ```
 
 ### What Other Commands are there?
@@ -51,28 +59,22 @@ axiom --help
 ```bash
 ./install
 ```
-4. If that fails, then you may be in command prompt and not PowerShell. Try running:
-```bash
-powershell
-```
-Then; optionally, to make the process look cleaner:
-```
-cls
-```
-and then run:
-```bash
-./install
-```
-again.
 
 This command will only work if you have `python` installed and `pip` installed with it, and if the device it is being run on is Windows 11
 
 ## What do I Need for Axiom to Work?
 
 **Axiom** currently requires:
-1. Winget (should be available on some Windows 10 devices and most Windows 11 devices)
+1. **LM Studio**
+```bash
+winget install -e --id ElementLabs.LMStudio
+```
+> This uses `winget`, which should be available on most Windows 11 devices and some windows 10 devices
 2. [**Python 3.11+**](http://python.org/downloads/)
 3. Windows 11
+
+## Why use Axiom?
+Axiom comes with in built persistent memory, tool calling capabilities, and an `-a`/`--ask` command in the *CLI* that allows other programs to talk to **Axiom**.
 
 ## How do I Create A Model?
 
@@ -275,7 +277,7 @@ These instructions guide the model; they are not a guarantee that it will always
 
 This field appears at the root of the example definition, outside `behaviour`.
 
-It lists the `exists-file` skill. This lists skills that can run without axiom asking for user permission before using the tool.
+It lists the `exists-file` skill. The exact effect of this field depends on how Axiom's runtime interprets it, so consult the implementation before relying on it as a security boundary. Do not assume that listing a skill here makes its code safe to execute.
 
 ### How Do Python Skills Work?
 
@@ -344,5 +346,36 @@ An Axiom agent combines three things:
 
 By combining these components, you can create agents tailored to your own workflows without having to build a separate AI application for each one.
 
-## Stuff You should see
-[LICENSE](LICENSE)
+## A closer look into `axiom -r <model>`
+`-r` is one of the most usefull tools for debugging models. It allows you to run a model directly in terminal with some extra commands that can be given as prompts.
+
+For example, Let us say that I have a model named MyAgent.
+```bash
+axiom -r MyAgent
+```
+It should open an interactive chat interface directly in terminal, looking like this:
+```
+MyAgent
+---------
+>>>
+```
+You can now type a prompt. This chat has all the capabilities of a regular model called via `--ask` or `-a`, such as persistent memory and in-built tool calling capabilities.
+But alongside this, the chat interface created via `-r` has 3 extra commands that can be given as prompts.
+```
+MyAgent
+---------
+>>> exit
+```
+Entering *"exit"* should end the chat.
+```
+MyAgent
+---------
+>>> help
+```
+Entering *"help"* should provide a guide to using the **Axiom** *CLI*
+```
+MyAgent
+---------
+>>> forget
+```
+After requesting confirmation, entering *"forget"* should clear all the memory stored by the model.
