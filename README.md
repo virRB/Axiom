@@ -59,6 +59,14 @@ axiom --help
 ```bash
 ./install
 ```
+If that fails, you may be in command prompt and not powershell. run:
+```bash
+powershell
+```
+Then run:
+```bash
+./install
+```
 
 This command will only work if you have `python` installed and `pip` installed with it, and if the device it is being run on is Windows 11
 
@@ -277,8 +285,7 @@ These instructions guide the model; they are not a guarantee that it will always
 
 This field appears at the root of the example definition, outside `behaviour`.
 
-It lists the `exists-file` skill. The exact effect of this field depends on how Axiom's runtime interprets it, so consult the implementation before relying on it as a security boundary. Do not assume that listing a skill here makes its code safe to execute.
-
+It lists the `exists-file` skill. This does not automatically make skills safe to execute, and still executes raw python code. Axiom skills request user confirmation before the model can run a skill, however skills listed under the `safe` field do not require this confirmation.
 ### How Do Python Skills Work?
 
 Skills are ordinary Python functions. For example:
