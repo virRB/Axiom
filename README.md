@@ -386,3 +386,35 @@ MyAgent
 >>> forget
 ```
 After requesting confirmation, entering *"forget"* should clear all the memory stored by the model.
+
+## `import axiom_by_vir as axm`
+As per update 1.1.0, Axiom now has an importable Python API!
+
+The Python API still requires Axiom to be installed normally, with the steps provided earlier.
+
+The API revolves around one class, **`Model`**
+
+```python
+import axiom_by_vir as axm # Import the Axiom Python API under the shorter alias "axm"
+
+agent = axm.Model("ExampleAgent") # ExampleAgent should be a model that is already compiled and saved by Axiom on the user's device
+
+while True:
+    prompt = input(">>> ")
+    response = agent.ask(prompt) # This function returns a Response object
+    print(f"AI: {response.message}") # The response object has a "message" attribute containing the response
+```
+
+### Some Details
+
+The **`Response`** class provided by `Model.ask(...)`, usually has four attributes.
+1. `Response.attributes`: A tuple of the names of the attributes contained by `Response`
+2. `Response.message`: The response returned by the model
+3. `Response.steps`: The amount of steps taken by the model to respond
+4. `Response.model`: The name of the model to which the prompt was asked
+
+When providing a name for the `Model` class, you can also provide `axm.PickRandom`
+```python
+agent = axm.Model(axm.PickRandom)
+```
+This picks a random model saved and compiled on the user's local device
